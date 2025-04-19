@@ -2,7 +2,8 @@ import React from 'react'
 import { useContext } from 'react';
 import { userPageContext } from '../../Store/MainStore';
 import { useEffect } from 'react';
-import AppLayout from '../../Layout/AppLayout';
+//import AppLayout from '../../Layout/AppLayout';
+import AppLayot from '../../Layout/AppLayout';
 
 
 export default function AppAdmin() {
@@ -15,7 +16,7 @@ export default function AppAdmin() {
   
   return (
     <div>
-         <AppLayout></AppLayout>
+         <AppLayot></AppLayot>
     </div>
   )
 }

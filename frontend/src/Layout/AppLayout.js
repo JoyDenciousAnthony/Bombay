@@ -1,18 +1,20 @@
 import React from 'react';
 import { Box, CssBaseline, AppBar, Toolbar, IconButton, List, ListItem, ListItemIcon, ListItemText, Typography, useMediaQuery, Drawer } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import DescriptionIcon from '@mui/icons-material/Description';
+// import DashboardIcon from '@mui/icons-material/Dashboard';
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import BarChartIcon from '@mui/icons-material/BarChart';
+// import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
 import { Menu, ChevronLeft, Brightness4, Brightness7 } from '@mui/icons-material'; // <-- Added these imports
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { PageContainer } from '@toolpad/core/PageContainer';
-import AddUserForm from '../Compoment/AddUserForm';
+
+import AddUserApp from '../Compoment/AddUser/AddUserApp';
 import WorkForm from '../Compoment/WorkForm';
 import UserTable from '../Compoment/UserTable';
 import WorkView from '../Compoment/WorkView';
+
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import EngineeringIcon from '@mui/icons-material/Engineering';
@@ -57,7 +59,7 @@ function useDemoRouter(initialPath) {
 function DashboardContent({ segment }) {
   switch (segment) {
     case 'Create user':
-      return <AddUserForm></AddUserForm>;
+      return <AddUserApp></AddUserApp>;
     case 'User table':
       return <UserTable></UserTable>;
     case 'create task':
@@ -135,7 +137,11 @@ export default function AppLayot(props) {
             </IconButton>
             <List>
               {NAVIGATION.map((item) => (
-                <ListItem button key={item.title} onClick={() => handleNavigation(item.segment)}>
+                <ListItem
+                  key={item.title}
+                  button // Removed `button={true}`, now just `button` is enough
+                  onClick={() => handleNavigation(item.segment)}
+                >
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   {drawerOpen && <ListItemText primary={item.title} />}
                 </ListItem>
