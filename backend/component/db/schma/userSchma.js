@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+// const userSchema = new mongoose.Schema({
+  const userSchema={
   first_name: String,
   last_name: String,
   email: String,
@@ -14,7 +15,8 @@ const userSchema = new mongoose.Schema({
   image: {
     data: String,       // base64 string
     content: String,    // like image/png
-  },
-});
+  }
+};
+// );
 
 module.exports = mongoose.model('User', userSchema);

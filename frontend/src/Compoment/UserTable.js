@@ -41,6 +41,7 @@ export default function UserTable() {
     last_name: '',
     email: '',
     avatar: '',
+    avatarFile: null, // To store the selected file
     department: '',
     occupation: '',
     gender: '',
@@ -74,15 +75,35 @@ export default function UserTable() {
     setNewUserData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle file input change
+  const handleAvatarChange = (e) => {
+    setNewUserData((prev) => ({
+      ...prev,
+      avatarFile: e.target.files[0], // Store the file object
+    }));
+  };
+
   const handleEditUser = (user) => {
     setEditingUserId(user._id);
     setViewingUserId(null);
-    setNewUserData({ ...user });
+    setNewUserData({ ...user, avatarFile: null }); // Clear avatar file when editing
   };
 
   const handleSaveEdit = () => {
+    const formData = new FormData();
+    Object.keys(newUserData).forEach((key) => {
+      if (key !== 'avatarFile') {
+        formData.append(key, newUserData[key]);
+      }
+    });
+    if (newUserData.avatarFile) {
+      formData.append('avatar', newUserData.avatarFile);
+    }
+ 
     axios
-      .put(`http://localhost:9000/user/update/${editingUserId}`, newUserData)
+      .put(`http://localhost:9000/user/update/${editingUserId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
       .then(() => {
         fetchUsers();
         setEditingUserId(null);
@@ -91,6 +112,7 @@ export default function UserTable() {
           last_name: '',
           email: '',
           avatar: '',
+          avatarFile: null, // Reset avatar file
           department: '',
           occupation: '',
           gender: '',
@@ -292,7 +314,13 @@ export default function UserTable() {
             onChange={handleInputChange}
             fullWidth
           />
-          {/* Add additional fields as necessary */}
+          <TextField
+            margin="dense"
+            type="file"
+            label="Avatar"
+            onChange={handleAvatarChange}
+            fullWidth
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditingUserId(null)}>Cancel</Button>

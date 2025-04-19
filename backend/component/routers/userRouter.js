@@ -26,65 +26,106 @@ route.get('/all', async (req, res) => {
 });
 
 
+// route.post('/', async (req, res) => {
+
+//   console.log('📦 Request Body:', req.body.first_name);
+
+//   // const {
+//   //   first_name,
+//   //   last_name,
+//   //   email,
+//   //   department,
+//   //   occupation,
+//   //   gender,
+//   //   type,
+//   //   user_name, // corrected from 'user' to 'user_name'
+//   //   password,
+//   //   image, // Include image data from the frontend
+//   // } = req.body;
+
+//   // // Validate the required fields
+//   // if (!first_name || !last_name || !email || !user_name || !password) {
+//   //   return res.status(400).json({ message: 'All required fields must be provided' });
+//   // }
+
+//   // Prepare user data
+//   const newUser = new User({
+//     first_name:req.body.first_name,
+//     last_name:req.body.last_name,
+//     email:req.body.email,
+//     department:req.body.department,
+//     occupation:req.body.occupation,
+//     gender:req.body.gender,
+//     type:req.body.type,
+//     user_name:req.body.user_name,
+//     password:req.body.password,
+//     image:req.body.image, // Handle image data
+//   });
+//   const savedUser = await newUser.save();
+//   res.json(savedUser);
+//   // try {
+//   //   // Save user to the database
+//   //   const savedUser = await newUser.save();
+    
+//   //   res.status(201).json(savedUser); // Send response with saved user
+//   // } catch (error) {
+//   //   console.error('Error saving user:', error);
+//   //   res.status(500).json({ message: 'Error creating user!' });
+//   // }
+// });
+
 route.post('/', async (req, res) => {
+  const {
+    first_name,
+    last_name,
+    email,
+    department,
+    occupation,
+    gender,
+    type,
+    user_name,
+    password,
+    image, // Base64 image
+  } = req.body;
+
+  console.log('📦 Request Body:', req.body.first_name); // Debugging
+
+  // Validate the required fields
+  if (!first_name || !last_name || !email || !user_name || !password) {
+    return res.status(400).json({ message: 'All required fields must be provided' });
+  }
+
+  // Optionally, validate email format and password strength
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: 'Invalid email format' });
+  }
+
+  // Prepare user data
+  const newUser = new User({
+    first_name,
+    last_name,
+    email,
+    department,
+    occupation,
+    gender,
+    type,
+    user_name,
+    password, // Note: Consider hashing the password before saving (for security)
+    image, // Image data (Base64)
+  });
+
   try {
-    const {
-      first_name,
-      last_name,
-      email,
-      department,
-      occupation,
-      gender,
-      type,
-      user_name,
-      password,
-      image,
-      attan
-    } = req.body;
-
-    if (!first_name || !last_name || !email || !user_name || !password) {
-      return res.status(400).json({ message: 'Required fields are missing.' });
-    }
-
-    const formattedImage = image && image.data && image.content
-      ? {
-          data: Buffer.from(image.data, 'base64'),
-          content: image.content
-        }
-      : undefined;
-
-    const newUser = new User({
-      first_name,
-      last_name,
-      email,
-      department,
-      occupation,
-      gender,
-      type,
-      user_name,
-      password,
-      image: formattedImage,
-      attan: attan || []
-    });
-
+    // Save user to the database
     const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+    res.status(201).json(savedUser); // Respond with the saved user
+
   } catch (error) {
-    console.error('❌ Error saving user:', error);
-
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ message: error.message });
-    }
-
-    if (error.code === 11000) {
-      return res.status(409).json({
-        message: `Duplicate value for: ${Object.keys(error.keyValue).join(', ')}`
-      });
-    }
-
-    res.status(500).json({ message: error.message });
+    console.error('Error saving user:', error);
+    res.status(500).json({ message: 'Error creating user!' });
   }
 });
+
 
 
 // PUT: Update a user by ID
