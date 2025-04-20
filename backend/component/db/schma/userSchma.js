@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
   type: String,
   user_name: String,
   password: String,
+  id_number:String,
   image: { type: String }, // Base64 string (data:image/jpeg;base64,...)
 });
 

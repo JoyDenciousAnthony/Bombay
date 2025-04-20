@@ -31,53 +31,6 @@ route.get('/all', async (req, res) => {
 });
 
 
-// route.post('/', async (req, res) => {
-
-//   console.log('📦 Request Body:', req.body.first_name);
-
-//   // const {
-//   //   first_name,
-//   //   last_name,
-//   //   email,
-//   //   department,
-//   //   occupation,
-//   //   gender,
-//   //   type,
-//   //   user_name, // corrected from 'user' to 'user_name'
-//   //   password,
-//   //   image, // Include image data from the frontend
-//   // } = req.body;
-
-//   // // Validate the required fields
-//   // if (!first_name || !last_name || !email || !user_name || !password) {
-//   //   return res.status(400).json({ message: 'All required fields must be provided' });
-//   // }
-
-//   // Prepare user data
-//   const newUser = new User({
-//     first_name:req.body.first_name,
-//     last_name:req.body.last_name,
-//     email:req.body.email,
-//     department:req.body.department,
-//     occupation:req.body.occupation,
-//     gender:req.body.gender,
-//     type:req.body.type,
-//     user_name:req.body.user_name,
-//     password:req.body.password,
-//     image:req.body.image, // Handle image data
-//   });
-//   const savedUser = await newUser.save();
-//   res.json(savedUser);
-//   // try {
-//   //   // Save user to the database
-//   //   const savedUser = await newUser.save();
-    
-//   //   res.status(201).json(savedUser); // Send response with saved user
-//   // } catch (error) {
-//   //   console.error('Error saving user:', error);
-//   //   res.status(500).json({ message: 'Error creating user!' });
-//   // }
-// });
 
 route.post('/', async (req, res) => {
   const {
@@ -90,10 +43,12 @@ route.post('/', async (req, res) => {
     type,
     user_name,
     password,
+    id_number,
     image, // Base64 image
+    
   } = req.body;
 
-  console.log('📦 Request Body:', req.body.first_name); // Debugging
+  console.log('📦 Request Body:', req.body); // Debugging
 
   // Validate the required fields
   if (!first_name || !last_name || !email || !user_name || !password) {
@@ -117,6 +72,7 @@ route.post('/', async (req, res) => {
     type,
     user_name,
     password, // Note: Consider hashing the password before saving (for security)
+    id_number,
     image, // Image data (Base64)
   });
 

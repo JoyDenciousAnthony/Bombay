@@ -36,18 +36,21 @@ export default function UserTable() {
   const [editingUserId, setEditingUserId] = useState(null);
   const [viewingUserId, setViewingUserId] = useState(null);
   const [deletingUserId, setDeletingUserId] = useState(null);
+  const [imageDialogUrl, setImageDialogUrl] = useState(null); // Full-size image viewer
+
   const [newUserData, setNewUserData] = useState({
     first_name: '',
     last_name: '',
     email: '',
-    image: '', // Changed from avatar to image
-    avatarFile: null, // To store the selected file
+    image: '',
+    avatarFile: null,
     department: '',
     occupation: '',
     gender: '',
     type: '',
     user_name: '',
     password: '',
+    id_number: '',
     attan: [],
   });
 
@@ -56,8 +59,11 @@ export default function UserTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 5;
 
-  // Fetch users from the backend
   useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = () => {
     axios
       .get('http://localhost:9000/user/all')
       .then((res) => {
@@ -68,25 +74,24 @@ export default function UserTable() {
         console.error('Error fetching users:', err);
         setLoading(false);
       });
-  }, []);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewUserData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle file input change for avatar
   const handleAvatarChange = (e) => {
     setNewUserData((prev) => ({
       ...prev,
-      avatarFile: e.target.files[0], // Store the file object
+      avatarFile: e.target.files[0],
     }));
   };
 
   const handleEditUser = (user) => {
     setEditingUserId(user._id);
     setViewingUserId(null);
-    setNewUserData({ ...user, avatarFile: null }); // Clear avatar file when editing
+    setNewUserData({ ...user, avatarFile: null });
   };
 
   const handleSaveEdit = () => {
@@ -111,14 +116,15 @@ export default function UserTable() {
           first_name: '',
           last_name: '',
           email: '',
-          image: '', // Reset image
-          avatarFile: null, // Reset avatar file
+          image: '',
+          avatarFile: null,
           department: '',
           occupation: '',
           gender: '',
           type: '',
           user_name: '',
           password: '',
+          id_number: '',
           attan: [],
         });
       })
@@ -145,24 +151,11 @@ export default function UserTable() {
       .catch((err) => console.error('Error viewing user:', err));
   };
 
-  const fetchUsers = () => {
-    axios
-      .get('http://localhost:9000/user/all')
-      .then((res) => {
-        setUsers(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Error fetching users:', err);
-        setLoading(false);
-      });
-  };
-
   const filteredUsers = users.filter((user) => {
     const term = searchTerm.toLowerCase();
     switch (searchField) {
-      case 'id':
-        return user._id.toLowerCase().includes(term);
+      case 'id_number':
+        return user.id_number?.toLowerCase().includes(term);
       case 'first_name':
         return user.first_name?.toLowerCase().includes(term);
       case 'last_name':
@@ -171,7 +164,7 @@ export default function UserTable() {
         return user.email?.toLowerCase().includes(term);
       default:
         return (
-          user._id.toLowerCase().includes(term) ||
+          user.id_number?.toLowerCase().includes(term) ||
           user.first_name?.toLowerCase().includes(term) ||
           user.last_name?.toLowerCase().includes(term) ||
           user.email?.toLowerCase().includes(term)
@@ -201,7 +194,7 @@ export default function UserTable() {
                 onChange={(e) => setSearchField(e.target.value)}
               >
                 <MenuItem value="all">All</MenuItem>
-                <MenuItem value="id">ID</MenuItem>
+                <MenuItem value="id_number">ID</MenuItem>
                 <MenuItem value="first_name">First Name</MenuItem>
                 <MenuItem value="last_name">Last Name</MenuItem>
                 <MenuItem value="email">Email</MenuItem>
@@ -235,12 +228,16 @@ export default function UserTable() {
                   {currentUsers.map((user, index) => (
                     <TableRow key={user._id}>
                       <TableCell>{indexOfFirstUser + index + 1}</TableCell>
-                      <TableCell>{user._id}</TableCell>
+                      <TableCell>{user.id_number}</TableCell>
                       <TableCell>{user.first_name}</TableCell>
                       <TableCell>{user.last_name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Avatar src={user.image || '/default-avatar.png'} />
+                        <Avatar
+                          src={user.image || '/default-avatar.png'}
+                          sx={{ cursor: 'pointer' }}
+                          onClick={() => setImageDialogUrl(user.image || '/default-avatar.png')}
+                        />
                       </TableCell>
                       <TableCell>
                         <IconButton color="primary" onClick={() => handleEditUser(user)}>
@@ -279,7 +276,11 @@ export default function UserTable() {
           <Typography><strong>First Name:</strong> {newUserData.first_name}</Typography>
           <Typography><strong>Last Name:</strong> {newUserData.last_name}</Typography>
           <Typography><strong>Email:</strong> {newUserData.email}</Typography>
-          <Avatar src={newUserData.image || '/default-avatar.png'} sx={{ mt: 2, width: 60, height: 60 }} />
+          <Avatar
+            src={newUserData.image || '/default-avatar.png'}
+            sx={{ mt: 2, width: 60, height: 60, cursor: 'pointer' }}
+            onClick={() => setImageDialogUrl(newUserData.image || '/default-avatar.png')}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setViewingUserId(null)}>Close</Button>
@@ -290,49 +291,17 @@ export default function UserTable() {
       <Dialog open={!!editingUserId} onClose={() => setEditingUserId(null)}>
         <DialogTitle>Edit User</DialogTitle>
         <DialogContent>
-          <TextField
-            margin="dense"
-            label="First Name"
-            name="first_name"
-            value={newUserData.first_name}
-            onChange={handleInputChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="Last Name"
-            name="last_name"
-            value={newUserData.last_name}
-            onChange={handleInputChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            name="email"
-            value={newUserData.email}
-            onChange={handleInputChange}
-            fullWidth
-          />
-
+          <TextField margin="dense" label="First Name" name="first_name" value={newUserData.first_name} onChange={handleInputChange} fullWidth />
+          <TextField margin="dense" label="Last Name" name="last_name" value={newUserData.last_name} onChange={handleInputChange} fullWidth />
+          <TextField margin="dense" label="Email" name="email" value={newUserData.email} onChange={handleInputChange} fullWidth />
           <Box sx={{ mt: 2 }}>
             <Typography variant="body2" gutterBottom>Change Avatar:</Typography>
             <input type="file" accept="image/*" onChange={handleAvatarChange} />
-
-            {/* Show preview if new file selected */}
             {newUserData.avatarFile && (
-              <Avatar
-                src={URL.createObjectURL(newUserData.avatarFile)}
-                sx={{ mt: 1, width: 60, height: 60 }}
-              />
+              <Avatar src={URL.createObjectURL(newUserData.avatarFile)} sx={{ mt: 1, width: 60, height: 60 }} />
             )}
-
-            {/* Show existing base64 image if no new file */}
             {!newUserData.avatarFile && newUserData.image && (
-              <Avatar
-                src={newUserData.image}
-                sx={{ mt: 1, width: 60, height: 60 }}
-              />
+              <Avatar src={newUserData.image} sx={{ mt: 1, width: 60, height: 60 }} />
             )}
           </Box>
         </DialogContent>
@@ -342,12 +311,29 @@ export default function UserTable() {
         </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation */}
       <Dialog open={!!deletingUserId} onClose={() => setDeletingUserId(null)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogActions>
           <Button onClick={() => setDeletingUserId(null)}>Cancel</Button>
           <Button color="error" onClick={handleDeleteUser}>Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Full-size Image Dialog */}
+      <Dialog open={!!imageDialogUrl} onClose={() => setImageDialogUrl(null)} maxWidth="md">
+        <DialogTitle>Full Size Image</DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ textAlign: 'center' }}>
+            <img
+              src={imageDialogUrl}
+              alt="Full Size"
+              style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 10 }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setImageDialogUrl(null)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

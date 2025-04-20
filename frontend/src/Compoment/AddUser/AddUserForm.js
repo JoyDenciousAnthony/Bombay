@@ -25,7 +25,7 @@ export default function AddUserForm() {
   const [gender, setGender] = useState('');
   const [userType, setUserType] = useState('');
   const [avatar, setAvatar] = useState(null);
-  const [avatarName, setAvatarName] = useState(''); // ✅ track file name
+  const [avatarName, setAvatarName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -34,6 +34,7 @@ export default function AddUserForm() {
   const [occupation, setOccupation] = useState('');
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
+  const [idNumber, setIdNumber] = useState(''); // ✅ NEW
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -51,6 +52,7 @@ export default function AddUserForm() {
     setOccupation('');
     setUserName('');
     setPassword('');
+    setIdNumber(''); // ✅ NEW
   };
 
   const handleTogglePasswordVisibility = () => {
@@ -63,13 +65,10 @@ export default function AddUserForm() {
   const handleAvatarChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // ✅ Validate image type
       if (!file.type.startsWith('image/')) {
         setErrorMessage('Only image files are allowed.');
         return;
       }
-
-      // ✅ Validate image size (optional)
       if (file.size > 2 * 1024 * 1024) {
         setErrorMessage('Image must be smaller than 2MB.');
         return;
@@ -77,8 +76,8 @@ export default function AddUserForm() {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatar(reader.result); // base64 string
-        setAvatarName(file.name); // just for feedback
+        setAvatar(reader.result);
+        setAvatarName(file.name);
       };
       reader.readAsDataURL(file);
     }
@@ -92,7 +91,7 @@ export default function AddUserForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!firstName || !lastName || !email || !userName || !password) {
+    if (!firstName || !lastName || !email || !userName || !password || !idNumber) {
       setErrorMessage('Please fill in all required fields.');
       return;
     }
@@ -107,7 +106,8 @@ export default function AddUserForm() {
       type: userType,
       user_name: userName,
       password,
-      image: avatar, // ✅ base64 image
+      image: avatar,
+      id_number: idNumber, // ✅ NEW
     };
 
     setIsLoading(true);
@@ -162,7 +162,6 @@ export default function AddUserForm() {
               </IconButton>
             </label>
 
-            {/* ✅ Show file name if uploaded */}
             {avatarName && (
               <Typography variant="caption" sx={{ ml: 1 }}>
                 {avatarName} uploaded
@@ -182,6 +181,9 @@ export default function AddUserForm() {
             <TextField label="Email" type="email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
             <TextField label="Department" fullWidth value={department} onChange={(e) => setDepartment(e.target.value)} />
             <TextField label="Occupation" fullWidth value={occupation} onChange={(e) => setOccupation(e.target.value)} />
+            
+            {/* ✅ New ID Number Field */}
+            <TextField label="ID Number" fullWidth value={idNumber} onChange={(e) => setIdNumber(e.target.value)} />
 
             <FormControl fullWidth>
               <InputLabel id="gender-label">Gender</InputLabel>
