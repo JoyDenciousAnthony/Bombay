@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
-// const userSchema = new mongoose.Schema({
-  const userSchema={
+const UserSchema = new mongoose.Schema({
   first_name: String,
   last_name: String,
   email: String,
@@ -11,12 +10,7 @@ const mongoose = require('mongoose');
   type: String,
   user_name: String,
   password: String,
-  attan: { type: Array, default: [] },
-  image: {
-    data: String,       // base64 string
-    content: String,    // like image/png
-  }
-};
-// );
+  image: { type: String }, // Base64 string (data:image/jpeg;base64,...)
+});
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', UserSchema);

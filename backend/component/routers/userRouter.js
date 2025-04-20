@@ -1,6 +1,11 @@
 const express = require('express');
 const route = express.Router();
 const User = require('../db/schma/userSchma'); // Import the user model
+const multer = require('multer');
+
+// Store in memory or define disk storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 // GET: Find user by ID
 route.get('/find/:id', async (req, res) => {
@@ -126,13 +131,30 @@ route.post('/', async (req, res) => {
   }
 });
 
-
-
-// PUT: Update a user by ID
-route.put('/update/:id', async (req, res) => {
-  const { first_name, last_name, email, department, occupation, gender, type, user_name, password, image, attan } = req.body;
-  
+// Update route to use multer middleware
+route.put('/update/:id', upload.single('avatar'), async (req, res) => {
   try {
+    const {
+      first_name,
+      last_name,
+      email,
+      department,
+      occupation,
+      gender,
+      type,
+      user_name,
+      password,
+    } = req.body;
+
+    let imageData = req.body.avatar; // fallback
+
+    // If file is uploaded, convert to base64
+    if (req.file) {
+      const buffer = req.file.buffer;
+      const mimeType = req.file.mimetype;
+      const base64Image = `data:${mimeType};base64,${buffer.toString('base64')}`;
+      imageData = base64Image;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
@@ -147,11 +169,10 @@ route.put('/update/:id', async (req, res) => {
           type,
           user_name,
           password,
-          image: image || { data: null, content: null },
-          attan: attan || []
-        }
+          image: imageData,
+        },
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     if (!updatedUser) {
@@ -160,11 +181,10 @@ route.put('/update/:id', async (req, res) => {
 
     res.status(200).json(updatedUser);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Update error:', error);
+    res.status(500).json({ message: 'Server error during update' });
   }
 });
-
-
 
 // DELETE: Delete a user by ID
 route.delete('/delete/:id', async (req, res) => {

@@ -287,46 +287,60 @@ export default function UserTable() {
       </Dialog>
 
       {/* Edit Dialog */}
-      <Dialog open={!!editingUserId} onClose={() => setEditingUserId(null)}>
-        <DialogTitle>Edit User</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="dense"
-            label="First Name"
-            name="first_name"
-            value={newUserData.first_name}
-            onChange={handleInputChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="Last Name"
-            name="last_name"
-            value={newUserData.last_name}
-            onChange={handleInputChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            name="email"
-            value={newUserData.email}
-            onChange={handleInputChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            type="file"
-            label="Avatar"
-            onChange={handleAvatarChange}
-            fullWidth
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSaveEdit}>Save</Button>
-        </DialogActions>
-      </Dialog>
+<Dialog open={!!editingUserId} onClose={() => setEditingUserId(null)}>
+  <DialogTitle>Edit User</DialogTitle>
+  <DialogContent>
+    <TextField
+      margin="dense"
+      label="First Name"
+      name="first_name"
+      value={newUserData.first_name}
+      onChange={handleInputChange}
+      fullWidth
+    />
+    <TextField
+      margin="dense"
+      label="Last Name"
+      name="last_name"
+      value={newUserData.last_name}
+      onChange={handleInputChange}
+      fullWidth
+    />
+    <TextField
+      margin="dense"
+      label="Email"
+      name="email"
+      value={newUserData.email}
+      onChange={handleInputChange}
+      fullWidth
+    />
+
+    {/* Avatar upload input */}
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="body2" gutterBottom>Change Avatar:</Typography>
+      <input type="file" accept="image/*" onChange={handleAvatarChange} />
+      {/* Show preview if file is selected */}
+      {newUserData.avatarFile && (
+        <Avatar
+          src={URL.createObjectURL(newUserData.avatarFile)}
+          sx={{ mt: 1, width: 60, height: 60 }}
+        />
+      )}
+      {/* Show existing avatar if no new file */}
+      {!newUserData.avatarFile && newUserData.avatar && (
+        <Avatar
+          src={newUserData.avatar}
+          sx={{ mt: 1, width: 60, height: 60 }}
+        />
+      )}
+    </Box>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
+    <Button variant="contained" onClick={handleSaveEdit}>Save</Button>
+  </DialogActions>
+</Dialog>
+
 
       {/* Delete Confirmation */}
       <Dialog open={!!deletingUserId} onClose={() => setDeletingUserId(null)}>
