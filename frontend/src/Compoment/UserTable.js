@@ -40,7 +40,7 @@ export default function UserTable() {
     first_name: '',
     last_name: '',
     email: '',
-    avatar: '',
+    image: '', // Changed from avatar to image
     avatarFile: null, // To store the selected file
     department: '',
     occupation: '',
@@ -75,7 +75,7 @@ export default function UserTable() {
     setNewUserData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle file input change
+  // Handle file input change for avatar
   const handleAvatarChange = (e) => {
     setNewUserData((prev) => ({
       ...prev,
@@ -99,7 +99,7 @@ export default function UserTable() {
     if (newUserData.avatarFile) {
       formData.append('avatar', newUserData.avatarFile);
     }
- 
+
     axios
       .put(`http://localhost:9000/user/update/${editingUserId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -111,7 +111,7 @@ export default function UserTable() {
           first_name: '',
           last_name: '',
           email: '',
-          avatar: '',
+          image: '', // Reset image
           avatarFile: null, // Reset avatar file
           department: '',
           occupation: '',
@@ -227,7 +227,7 @@ export default function UserTable() {
                     <TableCell>First Name</TableCell>
                     <TableCell>Last Name</TableCell>
                     <TableCell>Email</TableCell>
-                    <TableCell>Avatar</TableCell>
+                    <TableCell>Image</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -240,7 +240,7 @@ export default function UserTable() {
                       <TableCell>{user.last_name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Avatar src={user.avatar || '/default-avatar.png'} />
+                        <Avatar src={user.image || '/default-avatar.png'} />
                       </TableCell>
                       <TableCell>
                         <IconButton color="primary" onClick={() => handleEditUser(user)}>
@@ -279,7 +279,7 @@ export default function UserTable() {
           <Typography><strong>First Name:</strong> {newUserData.first_name}</Typography>
           <Typography><strong>Last Name:</strong> {newUserData.last_name}</Typography>
           <Typography><strong>Email:</strong> {newUserData.email}</Typography>
-          <Avatar src={newUserData.avatar} sx={{ mt: 2, width: 60, height: 60 }} />
+          <Avatar src={newUserData.image || '/default-avatar.png'} sx={{ mt: 2, width: 60, height: 60 }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setViewingUserId(null)}>Close</Button>
@@ -287,70 +287,67 @@ export default function UserTable() {
       </Dialog>
 
       {/* Edit Dialog */}
-<Dialog open={!!editingUserId} onClose={() => setEditingUserId(null)}>
-  <DialogTitle>Edit User</DialogTitle>
-  <DialogContent>
-    <TextField
-      margin="dense"
-      label="First Name"
-      name="first_name"
-      value={newUserData.first_name}
-      onChange={handleInputChange}
-      fullWidth
-    />
-    <TextField
-      margin="dense"
-      label="Last Name"
-      name="last_name"
-      value={newUserData.last_name}
-      onChange={handleInputChange}
-      fullWidth
-    />
-    <TextField
-      margin="dense"
-      label="Email"
-      name="email"
-      value={newUserData.email}
-      onChange={handleInputChange}
-      fullWidth
-    />
-
-    {/* Avatar upload input */}
-    <Box sx={{ mt: 2 }}>
-      <Typography variant="body2" gutterBottom>Change Avatar:</Typography>
-      <input type="file" accept="image/*" onChange={handleAvatarChange} />
-      {/* Show preview if file is selected */}
-      {newUserData.avatarFile && (
-        <Avatar
-          src={URL.createObjectURL(newUserData.avatarFile)}
-          sx={{ mt: 1, width: 60, height: 60 }}
-        />
-      )}
-      {/* Show existing avatar if no new file */}
-      {!newUserData.avatarFile && newUserData.avatar && (
-        <Avatar
-          src={newUserData.avatar}
-          sx={{ mt: 1, width: 60, height: 60 }}
-        />
-      )}
-    </Box>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
-    <Button variant="contained" onClick={handleSaveEdit}>Save</Button>
-  </DialogActions>
-</Dialog>
-
-
-      {/* Delete Confirmation */}
-      <Dialog open={!!deletingUserId} onClose={() => setDeletingUserId(null)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+      <Dialog open={!!editingUserId} onClose={() => setEditingUserId(null)}>
+        <DialogTitle>Edit User</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this user?</Typography>
+          <TextField
+            margin="dense"
+            label="First Name"
+            name="first_name"
+            value={newUserData.first_name}
+            onChange={handleInputChange}
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            label="Last Name"
+            name="last_name"
+            value={newUserData.last_name}
+            onChange={handleInputChange}
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            name="email"
+            value={newUserData.email}
+            onChange={handleInputChange}
+            fullWidth
+          />
+
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" gutterBottom>Change Avatar:</Typography>
+            <input type="file" accept="image/*" onChange={handleAvatarChange} />
+
+            {/* Show preview if new file selected */}
+            {newUserData.avatarFile && (
+              <Avatar
+                src={URL.createObjectURL(newUserData.avatarFile)}
+                sx={{ mt: 1, width: 60, height: 60 }}
+              />
+            )}
+
+            {/* Show existing base64 image if no new file */}
+            {!newUserData.avatarFile && newUserData.image && (
+              <Avatar
+                src={newUserData.image}
+                sx={{ mt: 1, width: 60, height: 60 }}
+              />
+            )}
+          </Box>
         </DialogContent>
         <DialogActions>
+          <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveEdit}>Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingUserId} onClose={() => setDeletingUserId(null)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogActions>
           <Button onClick={() => setDeletingUserId(null)}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={handleDeleteUser}>Delete</Button>
+          <Button color="error" onClick={handleDeleteUser}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>
