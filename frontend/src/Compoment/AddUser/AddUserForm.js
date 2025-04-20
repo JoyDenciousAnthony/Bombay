@@ -25,6 +25,7 @@ export default function AddUserForm() {
   const [gender, setGender] = useState('');
   const [userType, setUserType] = useState('');
   const [avatar, setAvatar] = useState(null);
+  const [avatarName, setAvatarName] = useState(''); // ✅ track file name
   const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -41,6 +42,7 @@ export default function AddUserForm() {
     setGender('');
     setUserType('');
     setAvatar(null);
+    setAvatarName('');
     setShowPassword(false);
     setFirstName('');
     setLastName('');
@@ -61,9 +63,22 @@ export default function AddUserForm() {
   const handleAvatarChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      // ✅ Validate image type
+      if (!file.type.startsWith('image/')) {
+        setErrorMessage('Only image files are allowed.');
+        return;
+      }
+
+      // ✅ Validate image size (optional)
+      if (file.size > 2 * 1024 * 1024) {
+        setErrorMessage('Image must be smaller than 2MB.');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatar(reader.result);
+        setAvatar(reader.result); // base64 string
+        setAvatarName(file.name); // just for feedback
       };
       reader.readAsDataURL(file);
     }
@@ -92,7 +107,7 @@ export default function AddUserForm() {
       type: userType,
       user_name: userName,
       password,
-      image: avatar,
+      image: avatar, // ✅ base64 image
     };
 
     setIsLoading(true);
@@ -110,7 +125,7 @@ export default function AddUserForm() {
         console.log('User created:', data);
         setErrorMessage('');
         setOpenSnackbar(true);
-        resetForm(); // 🎯 Reset the form here
+        resetForm();
       } else {
         setErrorMessage(data.message || 'Error creating user');
       }
@@ -130,7 +145,10 @@ export default function AddUserForm() {
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Avatar src={avatar} sx={{ width: 64, height: 64, mr: 2 }} />
+            <Avatar src={avatar || undefined} sx={{ width: 64, height: 64, mr: 2 }}>
+              {!avatar && firstName[0]}
+            </Avatar>
+
             <label htmlFor="avatar-upload">
               <input
                 accept="image/*"
@@ -143,6 +161,13 @@ export default function AddUserForm() {
                 <PhotoCamera />
               </IconButton>
             </label>
+
+            {/* ✅ Show file name if uploaded */}
+            {avatarName && (
+              <Typography variant="caption" sx={{ ml: 1 }}>
+                {avatarName} uploaded
+              </Typography>
+            )}
           </Box>
 
           <Box
